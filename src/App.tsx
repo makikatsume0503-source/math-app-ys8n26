@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, RotateCcw, ChevronLeft } from 'lucide-react';
+import { useDailyProgress } from './hooks/useDailyProgress';
+import { StampCalendar } from './features/division/StampCalendar';
 
 // --- Shared Types ---
 type Screen = 'home' | 'game';
@@ -9,27 +11,42 @@ type DivisionLevel = 1 | 2 | 3 | 4 | 5 | 6;
 // --- Components ---
 
 // 1. Home Screen
-const Home = ({ onStartGame }: { onStartGame: (level: DivisionLevel) => void }) => {
+const Home = ({ onStartGame, progressData }: { onStartGame: (level: DivisionLevel) => void, progressData: any }) => {
   return (
-    <div className="max-w-2xl mx-auto p-6 flex flex-col items-center gap-8">
+    <div className="max-w-4xl mx-auto p-6 flex flex-col md:flex-row items-start gap-8 justify-center">
+      {/* Left Column: Level Selection */}
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-white/90 backdrop-blur-sm p-6 rounded-[2rem] shadow-xl border-4 border-app-green/30 flex flex-col items-center w-full"
+        className="bg-white/90 backdrop-blur-sm p-6 rounded-[2rem] shadow-xl border-4 border-app-green/30 flex flex-col items-center w-full max-w-lg"
       >
         <div className="w-24 h-24 bg-app-green rounded-full flex items-center justify-center text-5xl text-white font-black mb-6 shadow-md">
           ÷
         </div>
         <h2 className="text-3xl font-black text-slate-700 mb-8">わりざん</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-          <LevelButton level={1} color="bg-app-green" onClick={() => onStartGame(1)} label="Lv.1 (1桁÷1桁)" />
-          <LevelButton level={2} color="bg-app-blue" onClick={() => onStartGame(2)} label="Lv.2 (2桁÷1桁)" />
+        <div className="grid grid-cols-1 gap-4 w-full">
+          <LevelButton level={1} color="bg-app-green" onClick={() => onStartGame(1)} label="Lv.1 (九九でなおせる)" />
+          <LevelButton level={2} color="bg-app-blue" onClick={() => onStartGame(2)} label="Lv.2 (2桁÷1桁=2桁)" />
           <LevelButton level={3} color="bg-app-purple" onClick={() => onStartGame(3)} label="Lv.3 (3桁÷1桁)" />
           <LevelButton level={4} color="bg-app-pink" onClick={() => onStartGame(4)} label="Lv.4 (2桁÷2桁)" />
           <LevelButton level={5} color="bg-app-yellow" onClick={() => onStartGame(5)} label="Lv.5 (3桁÷2桁)" />
           <LevelButton level={6} color="bg-orange-400" onClick={() => onStartGame(6)} label="Lv.6 (3桁÷3桁)" />
         </div>
+      </motion.div>
+
+      {/* Right Column: Calendar */}
+      <motion.div
+        initial={{ x: 20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="w-full max-w-md"
+      >
+        <StampCalendar
+          progress={progressData.progress}
+          todayCount={progressData.todayCount}
+          dailyGoal={progressData.dailyGoal}
+        />
       </motion.div>
     </div>
   );
@@ -51,7 +68,7 @@ const LevelButton = ({ level, color, onClick, label }: { level: number, color: s
 );
 
 // 2. Game Screen
-const DivisionGame = ({ level, onBack }: { level: DivisionLevel, onBack: () => void }) => {
+const DivisionGame = ({ level, onBack, onCorrect }: { level: DivisionLevel, onBack: () => void, onCorrect: () => void }) => {
   const [score, setScore] = useState(0);
   const [problem, setProblem] = useState(() => generateProblem(level));
   const [userAnswer, setUserAnswer] = useState('');
@@ -62,9 +79,6 @@ const DivisionGame = ({ level, onBack }: { level: DivisionLevel, onBack: () => v
 
     switch (lvl) {
       case 1: // Level 1: 九九 (Multiplication Table Inverse)
-        // ans = 1-9, b = 1-9.
-        // a = ans * b.
-        // Examples: 4/2=2, 81/9=9.
         {
           const ans = Math.floor(Math.random() * 9) + 1; // 1-9
           b = Math.floor(Math.random() * 9) + 1; // 1-9
@@ -72,15 +86,10 @@ const DivisionGame = ({ level, onBack }: { level: DivisionLevel, onBack: () => v
         }
         break;
       case 2: // Level 2: 2-digit / 1-digit = 2-digit answer
-        // b = 2-9
-        // ans = 10 - ? (max such that a <= 99)
-        // a = b * ans
         {
           b = Math.floor(Math.random() * 8) + 2; // 2-9
           const maxAns = Math.floor(99 / b); // e.g., b=2 -> 49, b=9 -> 11
           const minAns = 10;
-
-          // Safety check, though b=9 -> maxAns=11 >= minAns=10, so always valid.
           const ans = Math.floor(Math.random() * (maxAns - minAns + 1)) + minAns;
           a = ans * b;
         }
@@ -134,6 +143,7 @@ const DivisionGame = ({ level, onBack }: { level: DivisionLevel, onBack: () => v
     if (num === problem.ans) {
       setFeedback('correct');
       setScore(s => s + 1);
+      onCorrect(); // Increment daily progress
     } else {
       setFeedback('incorrect');
     }
@@ -257,6 +267,7 @@ const DivisionGame = ({ level, onBack }: { level: DivisionLevel, onBack: () => v
 function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [level, setLevel] = useState<DivisionLevel>(1);
+  const progressData = useDailyProgress();
 
   return (
     <div className="min-h-screen bg-app-background bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] py-8 px-4 flex flex-col items-center font-sans overflow-y-auto">
@@ -269,11 +280,15 @@ function App() {
         </div>
       </header>
 
-      <main className="w-full max-w-4xl relative z-10 mb-8">
+      <main className="w-full max-w-6xl relative z-10 mb-8">
         {screen === 'home' ? (
-          <Home onStartGame={(l) => { setLevel(l); setScreen('game'); }} />
+          <Home onStartGame={(l) => { setLevel(l); setScreen('game'); }} progressData={progressData} />
         ) : (
-          <DivisionGame level={level} onBack={() => setScreen('home')} />
+          <DivisionGame
+            level={level}
+            onBack={() => setScreen('home')}
+            onCorrect={() => progressData.incrementProgress()}
+          />
         )}
       </main>
 

@@ -61,23 +61,29 @@ const DivisionGame = ({ level, onBack }: { level: DivisionLevel, onBack: () => v
     let a, b;
 
     switch (lvl) {
-      case 1: // 1-digit / 1-digit
-        // a = 1-9, b = 1-9. a/b is int.
-        // e.g. 8/2=4.
-        do {
+      case 1: // Level 1: 九九 (Multiplication Table Inverse)
+        // ans = 1-9, b = 1-9.
+        // a = ans * b.
+        // Examples: 4/2=2, 81/9=9.
+        {
           const ans = Math.floor(Math.random() * 9) + 1; // 1-9
           b = Math.floor(Math.random() * 9) + 1; // 1-9
           a = ans * b;
-        } while (a > 9); // Ensure a is 1-digit
+        }
         break;
-      case 2: // 2-digit / 1-digit
-        do {
+      case 2: // Level 2: 2-digit / 1-digit = 2-digit answer
+        // b = 2-9
+        // ans = 10 - ? (max such that a <= 99)
+        // a = b * ans
+        {
           b = Math.floor(Math.random() * 8) + 2; // 2-9
-          const maxAns = Math.floor(99 / b);
-          const minAns = Math.ceil(10 / b);
+          const maxAns = Math.floor(99 / b); // e.g., b=2 -> 49, b=9 -> 11
+          const minAns = 10;
+
+          // Safety check, though b=9 -> maxAns=11 >= minAns=10, so always valid.
           const ans = Math.floor(Math.random() * (maxAns - minAns + 1)) + minAns;
           a = ans * b;
-        } while (a < 10 || a > 99);
+        }
         break;
       case 3: // 3-digit / 1-digit
         do {

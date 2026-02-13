@@ -26,7 +26,7 @@ const Home = ({ onStartGame, progressData }: { onStartGame: (level: DivisionLeve
         <h2 className="text-3xl font-black text-slate-700 mb-8">わりざん</h2>
 
         <div className="grid grid-cols-1 gap-4 w-full">
-          <LevelButton level={1} color="bg-app-green" onClick={() => onStartGame(1)} label="Lv.1 (九九でなおせる)" />
+          <LevelButton level={1} color="bg-app-green" onClick={() => onStartGame(1)} label="Lv.1 (九九で解ける)" />
           <LevelButton level={2} color="bg-app-blue" onClick={() => onStartGame(2)} label="Lv.2 (2桁÷1桁=2桁)" />
           <LevelButton level={3} color="bg-app-purple" onClick={() => onStartGame(3)} label="Lv.3 (3桁÷1桁)" />
           <LevelButton level={4} color="bg-app-pink" onClick={() => onStartGame(4)} label="Lv.4 (2桁÷2桁)" />

@@ -188,7 +188,16 @@ export const StampCalendar: React.FC<StampCalendarProps> = ({ progress, todayCou
                 {days.map(day => {
                     const data = getDayData(day);
                     const isToday = day === today.getDate();
-                    const hasStamp = data?.stamped;
+                    const count = data?.count || 0;
+                    let StampComponent = null;
+
+                    if (count >= 30) {
+                        StampComponent = <CatStampIcon size={24} variant="gold" />;
+                    } else if (count >= 20) {
+                        StampComponent = <CatStampIcon size={24} variant="silver" />;
+                    } else if (count >= 10) {
+                        StampComponent = <CatStampIcon size={24} variant="bronze" />;
+                    }
 
                     return (
                         <div
@@ -199,17 +208,17 @@ export const StampCalendar: React.FC<StampCalendarProps> = ({ progress, todayCou
                                 {day}
                             </span>
 
-                            {hasStamp ? (
+                            {StampComponent ? (
                                 <motion.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
-                                    className="z-10 text-app-pink drop-shadow-sm"
+                                    className="z-10 drop-shadow-sm"
                                 >
-                                    <CatStampIcon size={20} className="text-app-pink" />
+                                    {StampComponent}
                                 </motion.div>
-                            ) : data?.count ? (
+                            ) : count > 0 ? (
                                 <div className="z-10 text-[0.65rem] font-bold text-orange-300 translate-y-1">
-                                    {data.count}
+                                    {count}
                                 </div>
                             ) : null}
                         </div>

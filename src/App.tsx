@@ -26,7 +26,7 @@ const Home = ({ onStartGame, progressData }: { onStartGame: (level: DivisionLeve
         <h2 className="text-3xl font-black text-slate-700 mb-8">わりざん</h2>
 
         <div className="grid grid-cols-1 gap-4 w-full">
-          <LevelButton level={1} color="bg-app-green" onClick={() => onStartGame(1)} label="Lv.1 (九九で解ける)" />
+          <LevelButton level={1} color="bg-app-green" onClick={() => onStartGame(1)} label="Lv.1 (わり算でとける)" />
           <LevelButton level={2} color="bg-app-blue" onClick={() => onStartGame(2)} label="Lv.2 (2桁÷1桁=2桁)" />
           <LevelButton level={3} color="bg-app-purple" onClick={() => onStartGame(3)} label="Lv.3 (3桁÷1桁)" />
           <LevelButton level={4} color="bg-app-pink" onClick={() => onStartGame(4)} label="Lv.4 (2桁÷2桁)" />
@@ -158,20 +158,21 @@ const DivisionGame = ({ level, onBack, onCorrect }: { level: DivisionLevel, onBa
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white/90 backdrop-blur-md rounded-[2rem] shadow-xl border-[6px] border-app-green/30 relative overflow-hidden">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8 relative z-10">
+      <div className="flex justify-between items-center mb-8 relative z-10 gap-2">
         <button
           onClick={onBack}
-          className="flex items-center gap-1 bg-white px-4 py-2 rounded-full text-slate-500 font-bold border-2 border-slate-200 hover:bg-slate-50 transition-all shadow-sm group"
+          className="flex items-center gap-1 bg-white px-4 py-2 rounded-full text-slate-500 font-bold border-2 border-slate-200 hover:bg-slate-50 transition-all shadow-sm group whitespace-nowrap shrink-0"
         >
           <ChevronLeft size={20} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
           <span>もどる</span>
         </button>
 
-        <div className="bg-white/80 px-4 py-1 rounded-full border-2 border-slate-100 shadow-sm">
-          <span className="font-bold text-slate-500 text-sm">Lv.{level}</span>
+        <div className="bg-white/80 px-4 py-1 rounded-xl border-2 border-slate-100 shadow-sm flex flex-col items-center leading-tight">
+          <span className="text-[10px] text-slate-400 font-bold">わりざん</span>
+          <span className="font-bold text-slate-600 text-sm">Lv.{level}</span>
         </div>
 
-        <div className="flex items-center gap-2 bg-app-yellow/20 px-3 py-1 rounded-full border-2 border-app-yellow text-app-yellow-dark">
+        <div className="flex items-center gap-2 bg-app-yellow/20 px-3 py-1 rounded-full border-2 border-app-yellow text-app-yellow-dark shrink-0">
           <span className="text-lg">⭐</span>
           <span className="text-xl font-black text-orange-400">{score}</span>
         </div>
@@ -293,7 +294,7 @@ function App() {
       </main>
 
       <footer className="mt-auto text-slate-400 text-sm font-bold opacity-60">
-        © 2026 Math Adventure
+        © 2026 FinEdit Maki Katsume
       </footer>
     </div>
   );

@@ -6,7 +6,7 @@ import { StampCalendar } from './features/division/StampCalendar';
 
 // --- Shared Types ---
 type Screen = 'home' | 'game';
-type DivisionLevel = 1 | 2 | 3 | 4 | 5 | 6;
+type DivisionLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 // --- Components ---
 
@@ -26,17 +26,18 @@ const Home = ({ onStartGame, progressData }: { onStartGame: (level: DivisionLeve
         <h2 className="text-3xl font-black text-slate-700 mb-8">わりざん</h2>
 
         <div className="grid grid-cols-1 gap-4 w-full">
-          <LevelButton level={1} color="bg-app-green" onClick={() => onStartGame(1)} label="Lv.1 (わり算でとける)" />
-          <LevelButton level={2} color="bg-app-blue" onClick={() => onStartGame(2)} label="Lv.2 (2桁÷1桁=2桁)" />
-          <LevelButton level={3} color="bg-app-purple" onClick={() => onStartGame(3)} label="Lv.3 (3桁÷1桁)" />
-          <LevelButton level={4} color="bg-app-pink" onClick={() => onStartGame(4)} label="Lv.4 (2桁÷2桁)" />
-          <LevelButton level={5} color="bg-app-yellow" onClick={() => onStartGame(5)} label="Lv.5 (3桁÷2桁)" />
-          <LevelButton level={6} color="bg-orange-400" onClick={() => onStartGame(6)} label="Lv.6 (3桁÷3桁)" />
+          <LevelButton level={1} color="bg-app-green" onClick={() => onStartGame(1)} label="Lv.1 (1桁÷1桁)" />
+          <LevelButton level={2} color="bg-app-blue" onClick={() => onStartGame(2)} label="Lv.2 (2桁÷1桁)" />
+          <LevelButton level={3} color="bg-app-purple" onClick={() => onStartGame(3)} label="Lv.3 (2桁÷1桁 あまりあり)" />
+          <LevelButton level={4} color="bg-app-pink" onClick={() => onStartGame(4)} label="Lv.4 (3桁÷1桁 あまりあり)" />
+          <LevelButton level={5} color="bg-app-yellow" onClick={() => onStartGame(5)} label="Lv.5 (2桁÷2桁 あまりあり)" />
+          <LevelButton level={6} color="bg-orange-400" onClick={() => onStartGame(6)} label="Lv.6 (3桁÷2桁 あまりあり)" />
+          <LevelButton level={7} color="bg-red-500" onClick={() => onStartGame(7)} label="Lv.7 (3桁÷3桁 あまりあり)" />
         </div>
       </motion.div>
 
       {/* Right Column: Calendar */}
-      <motion.div
+      < motion.div
         initial={{ x: 20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
@@ -47,8 +48,8 @@ const Home = ({ onStartGame, progressData }: { onStartGame: (level: DivisionLeve
           todayCount={progressData.todayCount}
           dailyGoal={progressData.dailyGoal}
         />
-      </motion.div>
-    </div>
+      </motion.div >
+    </div >
   );
 };
 
@@ -71,79 +72,105 @@ const LevelButton = ({ level, color, onClick, label }: { level: number, color: s
 const DivisionGame = ({ level, onBack, onCorrect }: { level: DivisionLevel, onBack: () => void, onCorrect: () => void }) => {
   const [score, setScore] = useState(0);
   const [problem, setProblem] = useState(() => generateProblem(level));
-  const [userAnswer, setUserAnswer] = useState('');
+  const [userAnswer, setUserAnswer] = useState(''); // Quotient
+  const [userRemainder, setUserRemainder] = useState(''); // Remainder
+  const [focusedInput, setFocusedInput] = useState<'quotient' | 'remainder'>('quotient');
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
 
   function generateProblem(lvl: DivisionLevel) {
-    let a, b;
+    let a, b, q, r;
+
+    // Helper to generate random int [min, max]
+    const rand = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
     switch (lvl) {
-      case 1: // Level 1: 九九 (Multiplication Table Inverse)
-        {
-          const ans = Math.floor(Math.random() * 9) + 1; // 1-9
-          b = Math.floor(Math.random() * 9) + 1; // 1-9
-          a = ans * b;
-        }
+      case 1: // Lv 1: 1-digit / 1-digit (No remainder)
+        // Inverse multiplication table (1-9) * (1-9)
+        q = rand(1, 9);
+        b = rand(1, 9);
+        a = q * b;
+        r = 0;
         break;
-      case 2: // Level 2: 2-digit / 1-digit = 2-digit answer
-        {
-          b = Math.floor(Math.random() * 8) + 2; // 2-9
-          const maxAns = Math.floor(99 / b); // e.g., b=2 -> 49, b=9 -> 11
-          const minAns = 10;
-          const ans = Math.floor(Math.random() * (maxAns - minAns + 1)) + minAns;
-          a = ans * b;
-        }
-        break;
-      case 3: // 3-digit / 1-digit
+
+      case 2: // Lv 2: 2-digit / 1-digit (No remainder)
+        // q = 2-digit (10-99), b = 1-digit (2-9), a = q*b
+        // Constraint: a must be 2-digit
         do {
-          b = Math.floor(Math.random() * 8) + 2; // 2-9
-          const maxAns = Math.floor(999 / b);
-          const minAns = Math.ceil(100 / b);
-          const ans = Math.floor(Math.random() * (maxAns - minAns + 1)) + minAns;
-          a = ans * b;
-        } while (a < 100 || a > 999);
+          b = rand(2, 9);
+          q = rand(10, Math.floor(99 / b)); // Ensure a <= 99
+          a = q * b;
+          r = 0;
+        } while (a < 10);
         break;
-      case 4: // 2-digit / 2-digit
+
+      case 3: // Lv 3: 2-digit / 1-digit (With remainder)
+        // a = 2-digit, b = 1-digit
         do {
-          b = Math.floor(Math.random() * 89) + 10; // 10-99
-          const maxAns = Math.floor(99 / b); // likely small
-          if (maxAns < 1) { // shouldn't happen if b <= 99
-            b = 10;
-          }
-          // ans could be 1-9
-          const ans = Math.floor(Math.random() * 9) + 1;
-          a = b * ans;
-        } while (a < 10 || a > 99 || a < b);
+          b = rand(2, 9);
+          a = rand(10, 99);
+          q = Math.floor(a / b);
+          r = a % b;
+        } while (r === 0); // Force remainder
         break;
-      case 5: // 3-digit / 2-digit
+
+      case 4: // Lv 4: 3-digit / 1-digit (With remainder)
         do {
-          b = Math.floor(Math.random() * 89) + 10; // 10-99
-          const maxAns = Math.floor(999 / b);
-          const minAns = Math.ceil(100 / b);
-          const ans = Math.floor(Math.random() * (maxAns - minAns + 1)) + minAns;
-          a = ans * b;
-        } while (a < 100 || a > 999);
+          b = rand(2, 9);
+          a = rand(100, 999);
+          q = Math.floor(a / b);
+          r = a % b;
+        } while (r === 0);
         break;
-      case 6: // 3-digit / 3-digit
+
+      case 5: // Lv 5: 2-digit / 2-digit (With remainder)
         do {
-          b = Math.floor(Math.random() * 899) + 100; // 100-999
-          const ans = Math.floor(Math.random() * 9) + 1;
-          a = b * ans;
-        } while (a < 100 || a > 999);
+          b = rand(10, 98); // divisor
+          a = rand(10, 99); // dividend
+          // Make sure a > b so q >= 1, or allow 0? Usually q >= 1 in elementary math drills for this level
+          // If a < b, q=0 r=a. Let's enforce a > b
+          if (a <= b) continue;
+          q = Math.floor(a / b);
+          r = a % b;
+        } while (r === 0);
         break;
+
+      case 6: // Lv 6: 3-digit / 2-digit (With remainder)
+        do {
+          b = rand(10, 99);
+          a = rand(100, 999);
+          q = Math.floor(a / b);
+          r = a % b;
+        } while (r === 0);
+        break;
+
+      case 7: // Lv 7: 3-digit / 3-digit (With remainder)
+        do {
+          b = rand(100, 998);
+          a = rand(100, 999);
+          if (a <= b) continue;
+          q = Math.floor(a / b);
+          r = a % b;
+        } while (r === 0);
+        break;
+
       default:
-        a = 10; b = 2;
+        a = 10; b = 2; q = 5; r = 0;
     }
 
-    return { a, b, ans: a / b, operator: '÷' };
+    return { a, b, q, r, operator: '÷' };
   }
 
   const checkAnswer = () => {
-    const num = parseInt(userAnswer);
-    if (num === problem.ans) {
+    const inputQ = parseInt(userAnswer);
+    const inputR = parseInt(userRemainder || '0'); // Treat empty remainder as 0
+
+    const isCorrectQ = inputQ === problem.q;
+    const isCorrectR = inputR === problem.r;
+
+    if (isCorrectQ && isCorrectR) {
       setFeedback('correct');
       setScore(s => s + 1);
-      onCorrect(); // Increment daily progress
+      onCorrect();
     } else {
       setFeedback('incorrect');
     }
@@ -152,8 +179,35 @@ const DivisionGame = ({ level, onBack, onCorrect }: { level: DivisionLevel, onBa
   const nextProblem = () => {
     setProblem(generateProblem(level));
     setUserAnswer('');
+    setUserRemainder('');
+    setFocusedInput('quotient'); // Reset focus to quotient
     setFeedback(null);
   };
+
+  const handleNumberClick = (num: number) => {
+    if (focusedInput === 'quotient') {
+      setUserAnswer(prev => {
+        if (prev.length >= 5) return prev;
+        return prev + num.toString();
+      });
+    } else {
+      setUserRemainder(prev => {
+        if (prev.length >= 5) return prev; // Remainder usually smaller but 5 digits safety
+        return prev + num.toString();
+      });
+    }
+  };
+
+
+  const handleBackspace = () => {
+    if (focusedInput === 'quotient') {
+      setUserAnswer(prev => prev.slice(0, -1));
+    } else {
+      setUserRemainder(prev => prev.slice(0, -1));
+    }
+  };
+
+  const needsRemainder = level >= 3;
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white/90 backdrop-blur-md rounded-[2rem] shadow-xl border-[6px] border-app-green/30 relative overflow-hidden">
@@ -180,14 +234,38 @@ const DivisionGame = ({ level, onBack, onCorrect }: { level: DivisionLevel, onBa
 
       {/* Problem */}
       <div className="text-center mb-12 relative z-10">
-        <div className="text-5xl md:text-7xl font-black text-slate-700 tracking-wider flex items-center justify-center gap-4 drop-shadow-sm flex-wrap">
-          <span className="">{problem.a}</span>
-          <span className="text-app-green">{problem.operator}</span>
-          <span className="">{problem.b}</span>
-          <span>=</span>
-          <span className={`min-w-[4rem] h-20 bg-white rounded-xl border-4 flex items-center justify-center shadow-inner text-5xl transition-all px-4 ${userAnswer ? 'border-app-green bg-green-50' : 'border-dashed border-slate-300'}`}>
-            {userAnswer || "?"}
-          </span>
+        <div className="flex flex-col items-center gap-4">
+          <div className="text-5xl md:text-7xl font-black text-slate-700 tracking-wider flex items-center justify-center gap-4 drop-shadow-sm flex-wrap">
+            <span className="">{problem.a}</span>
+            <span className="text-app-green">{problem.operator}</span>
+            <span className="">{problem.b}</span>
+            <span>=</span>
+          </div>
+
+          <div className="flex items-center gap-4 flex-wrap justify-center">
+            {/* Quotient Input */}
+            <div
+              onClick={() => setFocusedInput('quotient')}
+              className={`min-w-[4rem] h-20 bg-white rounded-xl border-4 flex items-center justify-center shadow-inner text-5xl transition-all px-4 cursor-pointer relative ${focusedInput === 'quotient' ? 'border-app-green ring-4 ring-app-green/20 z-10' : 'border-slate-300'}`}
+            >
+              {userAnswer || "?"}
+              <span className="absolute -top-6 text-sm font-bold text-slate-400">こたえ</span>
+            </div>
+
+            {/* Remainder Input */}
+            {needsRemainder && (
+              <>
+                <span className="text-2xl font-bold text-slate-400">...</span>
+                <div
+                  onClick={() => setFocusedInput('remainder')}
+                  className={`min-w-[4rem] h-20 bg-white rounded-xl border-4 flex items-center justify-center shadow-inner text-5xl transition-all px-4 cursor-pointer relative ${focusedInput === 'remainder' ? 'border-app-pink ring-4 ring-app-pink/20 z-10' : 'border-slate-300'}`}
+                >
+                  {userRemainder || "?"}
+                  <span className="absolute -top-6 text-sm font-bold text-slate-400">あまり</span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -196,10 +274,7 @@ const DivisionGame = ({ level, onBack, onCorrect }: { level: DivisionLevel, onBa
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((num) => (
           <button
             key={num}
-            onClick={() => setUserAnswer(prev => {
-              if (prev.length >= 3) return prev;
-              return prev + num.toString();
-            })}
+            onClick={() => handleNumberClick(num)}
             className="aspect-square bg-white border-b-[5px] border-slate-200 rounded-xl text-3xl font-bold text-slate-600 active:border-b-0 active:translate-y-[5px] transition-all hover:bg-slate-50 shadow-sm"
           >
             {num}
@@ -208,13 +283,13 @@ const DivisionGame = ({ level, onBack, onCorrect }: { level: DivisionLevel, onBa
       </div>
       <div className="max-w-sm mx-auto flex gap-3 mb-6 relative z-10">
         <button
-          onClick={() => setUserAnswer('')}
+          onClick={() => { setUserAnswer(''); setUserRemainder(''); }}
           className="flex-1 py-3 bg-red-50 border-b-[4px] border-red-200 rounded-xl text-red-400 flex items-center justify-center active:border-b-0 active:translate-y-[4px] transition-all hover:bg-red-100 font-bold"
         >
           <RotateCcw size={24} /> リセット
         </button>
         <button
-          onClick={() => setUserAnswer(prev => prev.slice(0, -1))}
+          onClick={handleBackspace}
           className="flex-1 py-3 bg-slate-50 border-b-[4px] border-slate-200 rounded-xl text-slate-400 flex items-center justify-center active:border-b-0 active:translate-y-[4px] transition-all hover:bg-slate-100 font-bold"
         >
           １もじけす

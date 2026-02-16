@@ -369,7 +369,7 @@ function App() {
       </main>
 
       <footer className="mt-auto text-slate-400 text-sm font-bold opacity-60">
-        © 2026 FinEdit Maki Katsume | v2026.02.16-2
+        © 2026 FinEdit Maki Katsume | v2026.02.16-3
       </footer>
     </div>
   );

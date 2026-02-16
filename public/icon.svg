@@ -1,1 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">➗</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Apple Body -->
+  <path d="M50 25 Q30 25 20 45 Q10 70 30 90 Q50 100 70 90 Q90 70 80 45 Q70 25 50 25 Z" fill="#EF4444" />
+  
+  <!-- Leaf -->
+  <path d="M50 25 Q50 5 65 10 Q80 15 50 25 Z" fill="#4ADE80" />
+  
+  <!-- Stem -->
+  <path d="M50 25 Q45 15 48 10" stroke="#78350F" stroke-width="3" fill="none" />
+  
+  <!-- Text -->
+  <text x="50" y="68" font-family="'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif" font-weight="900" font-size="22" text-anchor="middle" fill="white">わりざん</text>
+</svg>

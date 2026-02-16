@@ -191,7 +191,9 @@ export const StampCalendar: React.FC<StampCalendarProps> = ({ progress, todayCou
                     const count = data?.count || 0;
                     let StampComponent = null;
 
-                    if (count >= 30) {
+                    if (count >= 50) {
+                        StampComponent = <CatStampIcon size={24} variant="excellent" />;
+                    } else if (count >= 30) {
                         StampComponent = <CatStampIcon size={24} variant="gold" />;
                     } else if (count >= 20) {
                         StampComponent = <CatStampIcon size={24} variant="silver" />;

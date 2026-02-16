@@ -3,7 +3,7 @@ import React from 'react';
 interface CatStampIconProps {
     size?: number;
     className?: string;
-    variant?: 'default' | 'bronze' | 'silver' | 'gold';
+    variant?: 'default' | 'bronze' | 'silver' | 'gold' | 'excellent';
 }
 
 export const CatStampIcon: React.FC<CatStampIconProps> = ({ size = 24, className = "", variant = 'default' }) => {
@@ -19,6 +19,8 @@ export const CatStampIcon: React.FC<CatStampIconProps> = ({ size = 24, className
         colors = { stroke: "#C0C0C0", fill: "#C0C0C0", opacity: 0.2 };
     } else if (variant === 'gold') {
         colors = { stroke: "#FFD700", fill: "#FFD700", opacity: 0.3 };
+    } else if (variant === 'excellent') {
+        colors = { stroke: "#9333EA", fill: "#F3E8FF", opacity: 0.4 }; // Vibrant Purple
     }
 
     // If className sets color (text-...), currentColor uses that.
@@ -39,7 +41,7 @@ export const CatStampIcon: React.FC<CatStampIconProps> = ({ size = 24, className
             xmlns="http://www.w3.org/2000/svg"
         >
             {/* Outer Circle (Stamp Border) */}
-            <circle cx="50" cy="50" r="45" stroke={strokeColor} strokeWidth="3" fill="none" />
+            <circle cx="50" cy="50" r="45" stroke={strokeColor} strokeWidth={variant === 'excellent' ? "4" : "3"} fill="none" />
 
             {/* Cat Face Outline */}
             <path d="M25 40 L20 25 L35 30 C40 28 60 28 65 30 L80 25 L75 40 C80 50 80 70 75 80 C70 90 30 90 25 80 C20 70 20 50 25 40 Z"
@@ -60,12 +62,27 @@ export const CatStampIcon: React.FC<CatStampIconProps> = ({ size = 24, className
             <line x1="80" y1="55" x2="70" y2="58" stroke={strokeColor} strokeWidth="2" />
             <line x1="80" y1="62" x2="70" y2="62" stroke={strokeColor} strokeWidth="2" />
 
-            {/* Text (Optional, small "OK" or similar) */}
-            <text x="50" y="90" textAnchor="middle" fontSize="12" fontWeight="bold" fill={strokeColor} className="select-none">OK</text>
+            {/* Text for Excellent */}
+            {variant === 'excellent' && (
+                <text x="50" y="90" textAnchor="middle" fontSize="10" fontWeight="bold" fill={strokeColor} className="select-none tracking-tighter">EXCELLENT</text>
+            )}
 
-            {/* Crown for Gold */}
-            {variant === 'gold' && (
-                <path d="M35 25 L25 10 L45 20 L50 5 L55 20 L75 10 L65 25" fill="#FFD700" stroke="#DAA520" strokeWidth="1" />
+            {/* Text for Others */}
+            {variant !== 'excellent' && (
+                <text x="50" y="90" textAnchor="middle" fontSize="12" fontWeight="bold" fill={strokeColor} className="select-none">OK</text>
+            )}
+
+            {/* Crown for Gold & Excellent */}
+            {(variant === 'gold' || variant === 'excellent') && (
+                <path d="M35 25 L25 10 L45 20 L50 5 L55 20 L75 10 L65 25" fill={variant === 'excellent' ? "#9333EA" : "#FFD700"} stroke={variant === 'excellent' ? "#7E22CE" : "#DAA520"} strokeWidth="1" />
+            )}
+
+            {/* Laurels/Sparkles for Excellent */}
+            {variant === 'excellent' && (
+                <>
+                    <path d="M10 50 Q5 30 25 20" stroke={strokeColor} strokeWidth="2" fill="none" strokeDasharray="2 2" />
+                    <path d="M90 50 Q95 30 75 20" stroke={strokeColor} strokeWidth="2" fill="none" strokeDasharray="2 2" />
+                </>
             )}
         </svg>
     );
